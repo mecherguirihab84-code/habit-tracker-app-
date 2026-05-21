@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const SideHustle = require('./models/SideHustle');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -58,7 +58,7 @@ app.post('/api/hustle/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5122;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/hustle_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Side Hustle Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Side Hustle Service running on port ${PORT}`));
+connectDB('Side Hustle Service').then(() => {
+  app.listen(PORT, () => console.log(`Side Hustle Service running on port ${PORT}`));
+});

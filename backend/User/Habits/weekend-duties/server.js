@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const WeekendDuty = require('./models/WeekendDuty');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -61,7 +61,7 @@ app.post('/api/weekend/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5121;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/weekend_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Weekend Duties Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Weekend Duties Service running on port ${PORT}`));
+connectDB('Weekend Duties Service').then(() => {
+  app.listen(PORT, () => console.log(`Weekend Duties Service running on port ${PORT}`));
+});

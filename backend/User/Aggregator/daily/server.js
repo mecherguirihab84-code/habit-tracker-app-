@@ -1,20 +1,15 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const DailyLog = require('./models/DailyLog');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
-
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/daily_db';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Daily Aggregator Service: MongoDB connected'))
-  .catch(err => console.error('Daily Aggregator Service: MongoDB connection error:', err));
 
 const verifyToken = (req, res, next) => {
   let token;
@@ -183,4 +178,7 @@ app.post('/api/daily/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5105;
-app.listen(PORT, () => console.log(`Daily Aggregator Service running on port ${PORT}`));
+
+connectDB('Daily Aggregator Service').then(() => {
+  app.listen(PORT, () => console.log(`Daily Aggregator Service running on port ${PORT}`));
+});

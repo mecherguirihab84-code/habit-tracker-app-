@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const BadHabit = require('./models/BadHabit');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -66,7 +66,7 @@ app.post('/api/bad/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5119;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/bad_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Bad Habits Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Bad Habits Service running on port ${PORT}`));
+connectDB('Bad Habits Service').then(() => {
+  app.listen(PORT, () => console.log(`Bad Habits Service running on port ${PORT}`));
+});

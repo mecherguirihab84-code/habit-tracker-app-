@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const auth = require('./middleware/auth');
 const DailyNote = require('./models/DailyNote');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -14,12 +14,6 @@ app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true
 }));
-
-// Connect to MongoDB
-const mongoURI = process.env.MONGO_URI || 'mongodb://mongo:27017/notes_db';
-mongoose.connect(mongoURI)
-  .then(() => console.log('Notes Service: Connected to MongoDB'))
-  .catch(err => console.error('Notes Service: MongoDB connection error:', err));
 
 // ── API Routes ───────────────────────────────────────────────
 
@@ -95,6 +89,9 @@ app.get('/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5132;
-app.listen(PORT, () => {
-  console.log(`Notes Service running on port ${PORT}`);
+
+connectDB('Notes Service').then(() => {
+  app.listen(PORT, () => {
+    console.log(`Notes Service running on port ${PORT}`);
+  });
 });

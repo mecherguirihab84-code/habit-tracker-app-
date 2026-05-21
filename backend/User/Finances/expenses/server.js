@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const Expense = require('./models/Expense');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -58,7 +58,7 @@ app.post('/api/expenses/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5126;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/expenses_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Expenses Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Expenses Service running on port ${PORT}`));
+connectDB('Expenses Service').then(() => {
+  app.listen(PORT, () => console.log(`Expenses Service running on port ${PORT}`));
+});

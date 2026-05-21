@@ -1,11 +1,11 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const User = require('./models/User');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -100,13 +100,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5102;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/auth_db';
 
-const maskedURI = MONGO_URI.replace(/\/\/([^:]+):([^@]+)@/, '//xxxx:xxxx@');
-console.log(`[Register Service] Attempting connection to MongoDB at: ${maskedURI}`);
-
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Register Service: MongoDB connected successfully'))
-  .catch(err => console.error('Register Service: MongoDB connection failed:', err));
-
-app.listen(PORT, () => console.log(`Register Service running on port ${PORT}`));
+connectDB('Register Service').then(() => {
+  app.listen(PORT, () => console.log(`Register Service running on port ${PORT}`));
+});

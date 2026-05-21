@@ -1,11 +1,11 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const Category = require('./models/Category');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -177,7 +177,7 @@ app.put('/api/categories/:category', verifyToken, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5110;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/categories_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Categories Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Categories Service running on port ${PORT}`));
+connectDB('Categories Service').then(() => {
+  app.listen(PORT, () => console.log(`Categories Service running on port ${PORT}`));
+});

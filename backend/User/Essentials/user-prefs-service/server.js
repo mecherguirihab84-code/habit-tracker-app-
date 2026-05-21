@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const UserPrefs = require('./models/UserPrefs');
+const { connectDB } = require('./db/mongoConnection');
 
 // ── App Setup ──────────────────────────────────────────────────
 const app = express();
@@ -68,10 +68,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'user-prefs-
 
 // ── Start ──────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5130;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/user_prefs_db';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('[User Prefs Service] MongoDB connected'))
-  .catch(err => console.error('[User Prefs Service] MongoDB error:', err));
-
-app.listen(PORT, () => console.log(`[User Prefs Service] Running on port ${PORT}`));
+connectDB('User Prefs Service').then(() => {
+  app.listen(PORT, () => console.log(`[User Prefs Service] Running on port ${PORT}`));
+});
