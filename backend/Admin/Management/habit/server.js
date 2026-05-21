@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const Log = require('./models/Log');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -75,10 +75,7 @@ app.post('/api/habits/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5002;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/habit_db';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Habit Service: MongoDB connected'))
-  .catch(err => console.error(err));
-
-app.listen(PORT, () => console.log(`Habit Service running on port ${PORT}`));
+connectDB('Habit Service').then(() => {
+  app.listen(PORT, () => console.log(`Habit Service running on port ${PORT}`));
+});

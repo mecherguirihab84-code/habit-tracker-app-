@@ -1,11 +1,11 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const CurrentBook = require('./models/CurrentBook');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -148,7 +148,7 @@ app.put('/api/currentbook', verifyToken, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5107;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/currentbook_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('CurrentBook Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`CurrentBook Service running on port ${PORT}`));
+connectDB('CurrentBook Service').then(() => {
+  app.listen(PORT, () => console.log(`CurrentBook Service running on port ${PORT}`));
+});

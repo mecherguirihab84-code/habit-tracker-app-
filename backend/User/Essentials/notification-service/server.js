@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
@@ -10,6 +9,7 @@ const Notification = require('./models/Notification');
 const ProcessedEvent = require('./models/ProcessedEvent');
 const PushSubscription = require('./models/PushSubscription');
 const DeliveryRecord = require('./models/DeliveryRecord');
+const { connectDB } = require('./db/mongoConnection');
 
 // ── Web Push Setup ─────────────────────────────────────────────
 const publicVapidKey = process.env.VAPID_PUBLIC_KEY || 'BCgZJNOei3SV_w0HlSfIU19B14iNQCN468a7deREHBZCNV7jbBwms6JJuIBF8SSTXZoh7hZFUBqDMfyZKdvWSgE';
@@ -287,16 +287,12 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', clients: sseClients.s
 
 // ── Start ──────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5128;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/notifications_db';
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Essentials Service] Running on port ${PORT}`);
-  mongoose.connect(MONGO_URI)
-    .then(() => {
-      console.log('[Essentials Service] DB Connected');
-      startKafka();
-    })
-    .catch(err => console.error('[Essentials Service] DB Error:', err.message));
+connectDB('Notification Service').then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Essentials Service] Running on port ${PORT}`);
+    startKafka();
+  });
 });
 
 process.on('SIGTERM', async () => {

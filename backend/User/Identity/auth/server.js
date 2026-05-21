@@ -1,7 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -12,14 +12,11 @@ app.use(cors({
   credentials: true
 }));
 
-const PORT = process.env.PORT || 5001;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/auth_db';
-
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Auth Service: MongoDB connected'))
-  .catch(err => console.error(err));
-
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-app.listen(PORT, () => console.log(`Auth Service running on port ${PORT}`));
+const PORT = process.env.PORT || 5001;
+
+connectDB('Auth Service').then(() => {
+  app.listen(PORT, () => console.log(`Auth Service running on port ${PORT}`));
+});

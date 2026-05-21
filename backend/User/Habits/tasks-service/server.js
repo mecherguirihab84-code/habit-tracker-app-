@@ -1,11 +1,11 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const cron = require('node-cron');
 const { Kafka } = require('kafkajs');
 const TaskLog = require('./models/TaskLog');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -178,13 +178,8 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // ── Start ──────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5131;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/tasks_db';
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('[Tasks Service] MongoDB connected');
-    connectKafka();
-  })
-  .catch(err => console.error('[Tasks Service] MongoDB connection error:', err));
-
-app.listen(PORT, () => console.log(`[Tasks Service] Running on port ${PORT}`));
+connectDB('Tasks Service').then(() => {
+  connectKafka();
+  app.listen(PORT, () => console.log(`[Tasks Service] Running on port ${PORT}`));
+});

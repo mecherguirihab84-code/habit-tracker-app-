@@ -1,10 +1,10 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const { Kafka } = require('kafkajs');
 const DeliveryRecord = require('./models/DeliveryRecord');
+const { connectDB } = require('./db/mongoConnection');
 
 // ── Kafka Setup ────────────────────────────────────────────────
 const kafka = new Kafka({
@@ -157,17 +157,12 @@ app.post('/api/delivery/webhook', async (req, res) => {
 
 // ── Start ──────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5129;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/delivery_db';
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Delivery Service] Running on port ${PORT}`);
-  
-  mongoose.connect(MONGO_URI)
-    .then(() => {
-      console.log('[Delivery Service] MongoDB connected');
-      startKafkaConsumer();
-    })
-    .catch(err => console.error('[Delivery Service] MongoDB error:', err));
+connectDB('Delivery Service').then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Delivery Service] Running on port ${PORT}`);
+    startKafkaConsumer();
+  });
 });
 
 process.on('SIGTERM', async () => {

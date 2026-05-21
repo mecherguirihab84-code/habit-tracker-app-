@@ -1,12 +1,12 @@
 const express = require('express');
 const http = require('http');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const { Kafka } = require('kafkajs');
 const { v4: uuidv4 } = require('uuid');
 const Essential = require('./models/Essential');
+const { connectDB } = require('./db/mongoConnection');
 
 // ── App Setup ──────────────────────────────────────────────────
 const app = express();
@@ -180,13 +180,10 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'item-servic
 
 // ── Start ──────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5127;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/essentials_db';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('[Item Service] MongoDB connected'))
-  .catch(err => console.error('[Item Service] MongoDB error:', err));
-
-app.listen(PORT, () => console.log(`[Item Service] Running on port ${PORT}`));
+connectDB('Item Service').then(() => {
+  app.listen(PORT, () => console.log(`[Item Service] Running on port ${PORT}`));
+});
 
 process.on('SIGTERM', async () => {
   if (producerReady) await producer.disconnect();

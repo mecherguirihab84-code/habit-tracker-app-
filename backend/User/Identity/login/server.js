@@ -1,11 +1,11 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const User = require('./models/User');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -248,13 +248,7 @@ app.delete('/api/login/admin/users/:userId', verifyAdmin, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5101;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/auth_db';
 
-const maskedURI = MONGO_URI.replace(/\/\/([^:]+):([^@]+)@/, '//xxxx:xxxx@');
-console.log(`[Login Service] Attempting connection to MongoDB at: ${maskedURI}`);
-
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Login Service: MongoDB connected successfully'))
-  .catch(err => console.error('Login Service: MongoDB connection failed:', err));
-
-app.listen(PORT, () => console.log(`Login Service running on port ${PORT}`));
+connectDB('Login Service').then(() => {
+  app.listen(PORT, () => console.log(`Login Service running on port ${PORT}`));
+});

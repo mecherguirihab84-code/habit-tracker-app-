@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const NightHabit = require('./models/NightHabit');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -62,7 +62,7 @@ app.post('/api/night/:date', verifyToken, async (req, res) => {
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const PORT = process.env.PORT || 5120;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/night_db';
 
-mongoose.connect(MONGO_URI).then(() => console.log('Night Habits Service: MongoDB connected')).catch(err => console.error(err));
-app.listen(PORT, () => console.log(`Night Habits Service running on port ${PORT}`));
+connectDB('Night Habits Service').then(() => {
+  app.listen(PORT, () => console.log(`Night Habits Service running on port ${PORT}`));
+});

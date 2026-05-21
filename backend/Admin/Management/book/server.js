@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const Book = require('./models/Book');
+const { connectDB } = require('./db/mongoConnection');
 
 const app = express();
 app.use(express.json());
@@ -137,10 +137,7 @@ app.get('/api/books/archived', verifyToken, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5003;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/book_db';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('Book Service: MongoDB connected'))
-  .catch(err => console.error(err));
-
-app.listen(PORT, () => console.log(`Book Service running on port ${PORT}`));
+connectDB('Book Service').then(() => {
+  app.listen(PORT, () => console.log(`Book Service running on port ${PORT}`));
+});
